@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <title>My Spring Boot</title>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <tr th:each="env : ${envVars}">
+            <td th:text="${env.key}">Key</td>
+            <td th:text="${env.value}">Value</td>
+        </tr>
+    </header>
+    <!-- Main Content -->
+    <section layout:fragment="content">
+        <p>Main content goes here.</p>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <title>Spring Security Example </title>
+</head>
+
+<body>
+    <form th:action="@{/api/user/add}" method="post">
+        <div><label> User Name : <input type="text" name="username" /> </label></div>
+        <div><label> Password: <input type="password" name="password" /> </label></div>
+        <div><label> Email: <input type="email" name="email" /> </label></div>
+        <div>
+            <label>Roles:</label>
+            <div th:each="role : ${roles}">
+                <input type="checkbox" th:name="roles" th:value="${role}" th:text="${role}" />
+            </div>
+        </div>
+        <div><input type="submit" value="Add user" /></div>
+    </form>
+</body>
+
+</html>

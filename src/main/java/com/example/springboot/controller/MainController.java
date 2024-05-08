@@ -1,6 +1,10 @@
 package com.example.springboot.controller;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.springboot.model.Role;
 import com.example.springboot.model.User;
+import com.example.springboot.repository.RoleRepository;
 import com.example.springboot.repository.UserRepository;
 
 @Controller // This means that this class is a Controller
@@ -20,23 +26,34 @@ public class MainController {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping(path = "/add") // Map ONLY POST Requests
-    public @ResponseBody String addNewUser(@RequestParam String name, @RequestParam String email,
-            @RequestParam String password) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public @ResponseBody String addNewUser(@RequestParam(name = "username") String username,
+            @RequestParam(name = "email") String email,
+            @RequestParam(name = "password") String password, @RequestParam(name = "roles") Set<String> roles) {
         // @ResponseBody means the returned String is the response, not a view name
         // @RequestParam means it is a parameter from the GET or POST request
 
         User n = new User();
-        n.setName(name);
+        n.setUsername(username);
         n.setEmail(email);
         n.setPassword(passwordEncoder.encode(password));
+        Set<Role> roleSet = roles.stream()
+                .map(roleName -> roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new RuntimeException("Role not found: " + roleName)))
+                .collect(Collectors.toSet());
+        n.setRoles(roleSet);
         userRepository.save(n);
         return "Saved";
     }
 
     @GetMapping(path = "/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public @ResponseBody Iterable<User> getAllUsers() {
         // This returns a JSON or XML with the users
         return userRepository.findAll();

@@ -1,7 +1,8 @@
 package com.example.springboot;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -42,23 +43,38 @@ public class Application {
 			// System.out.println(beanName);
 			// }
 
-			System.out.println("Add an init ADMIN role");
-			if (roleRepository.findRoleByName("ADMIN").isEmpty()) {
+			System.out.println("Add ROLE_ADMIN role");
+			if (roleRepository.findByName("ROLE_ADMIN").isEmpty()) {
 				Role r = new Role();
-				r.setName("ADMIN");
+				r.setName("ROLE_ADMIN");
 				roleRepository.save(r);
 			}
 
-			System.out.println("Add an init ADMIN user");
-
-			if (userRepository.findUserByName("admin").isEmpty()) {
-				User u = new User();
-				u.setName("admin");
-				u.setEmail("admin@example.com");
-				u.setPassword(passwordEncoder.encode("admin"));
-				u.setRoles(Collections.singleton(roleRepository.findRoleByName("ADMIN").get()));
-				userRepository.save(u);
+			System.out.println("Add ROLE_USER role");
+			if (roleRepository.findByName("ROLE_USER").isEmpty()) {
+				Role r = new Role();
+				r.setName("ROLE_USER");
+				roleRepository.save(r);
 			}
+
+			System.out.println("Add a super user with all roles");
+			Optional<User> adminOpt = userRepository.findByUsername("admin");
+			User admin;
+
+			if (adminOpt.isEmpty()) {
+				admin = new User();
+				admin.setUsername("admin");
+				admin.setEmail("admin@example.com");
+				admin.setPassword(passwordEncoder.encode("admin"));
+				userRepository.save(admin);
+			} else {
+				admin = adminOpt.get();
+			}
+
+			Set<Role> roles = admin.getRoles();
+			roleRepository.findAll().forEach(roles::add);
+			userRepository.save(admin);
+
 		};
 	}
 

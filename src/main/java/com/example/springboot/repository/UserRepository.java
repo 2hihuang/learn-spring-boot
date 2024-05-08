@@ -10,5 +10,5 @@ import com.example.springboot.model.User;
 // CRUD refers Create, Read, Update, Delete
 
 public interface UserRepository extends CrudRepository<User, Integer> {
-    Optional<User> findUserByName(String name);
+    Optional<User> findByUsername(String username);
 }
